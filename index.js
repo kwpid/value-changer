@@ -1,16 +1,28 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
+const http = require('http');
 
 // Get environment variables from Railway
 const TOKEN = process.env.DISCORD_TOKEN;
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
+const PORT = process.env.PORT || 3000;
 
 // Validate required environment variables
 if (!TOKEN || !CLIENT_ID || !GUILD_ID) {
     console.error('Missing required environment variables. Please set DISCORD_TOKEN, DISCORD_CLIENT_ID, and DISCORD_GUILD_ID in Railway.');
     process.exit(1);
 }
+
+// Create a simple HTTP server to keep the service alive
+const server = http.createServer((req, res) => {
+    res.writeHead(200);
+    res.end('Discord bot is running!');
+});
+
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
 
 const client = new Client({
     intents: [
@@ -58,13 +70,29 @@ const rest = new REST({ version: '10' }).setToken(TOKEN);
 client.once('ready', async () => {
     try {
         console.log('Started refreshing application (/) commands.');
+        
+        // Check if the bot has the necessary permissions
+        const guild = await client.guilds.fetch(GUILD_ID);
+        const botMember = await guild.members.fetch(CLIENT_ID);
+        
+        if (!botMember.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            console.error('Bot does not have Administrator permissions. Please add the bot with Administrator permissions.');
+            return;
+        }
+
         await rest.put(
             Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
             { body: [command.toJSON()] },
         );
         console.log('Successfully reloaded application (/) commands.');
     } catch (error) {
-        console.error(error);
+        console.error('Error registering commands:', error);
+        if (error.code === 50001) {
+            console.error('Missing Access error: The bot does not have the necessary permissions. Please:');
+            console.error('1. Remove the bot from your server');
+            console.error('2. Re-add the bot using this link:');
+            console.error(`https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&permissions=8&scope=bot%20applications.commands`);
+        }
     }
     console.log(`Logged in as ${client.user.tag}!`);
 });
