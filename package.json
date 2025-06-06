@@ -1,0 +1,13 @@
+{
+  "name": "value-changer-bot",
+  "version": "1.0.0",
+  "description": "Discord bot for tracking value changes",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.1"
+  }
+} 
