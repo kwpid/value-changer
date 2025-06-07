@@ -68,6 +68,38 @@ const command = new SlashCommandBuilder()
             .setDescription('Reason for the value change')
             .setRequired(true));
 
+const itemReleaseCommand = new SlashCommandBuilder()
+    .setName('itemrelease')
+    .setDescription('Post an item release embed')
+    .addStringOption(option =>
+        option.setName('itemname')
+            .setDescription('Name of the item')
+            .setRequired(true))
+    .addStringOption(option =>
+        option.setName('rarity')
+            .setDescription('Rarity of the item')
+            .setRequired(true)
+            .addChoices(
+                { name: 'Common', value: 'common' },
+                { name: 'Uncommon', value: 'uncommon' },
+                { name: 'Rare', value: 'rare' },
+                { name: 'Epic', value: 'epic' },
+                { name: 'Legendary', value: 'legendary' },
+                { name: 'Limited', value: 'limited' }
+            ))
+    .addNumberOption(option =>
+        option.setName('value')
+            .setDescription('Value of the item')
+            .setRequired(true))
+    .addNumberOption(option =>
+        option.setName('stock')
+            .setDescription('Stock of the item')
+            .setRequired(true))
+    .addStringOption(option =>
+        option.setName('image')
+            .setDescription('URL of the item image')
+            .setRequired(true));
+
 // Register the command
 const rest = new REST({ version: '10' }).setToken(TOKEN);
 
@@ -86,7 +118,7 @@ client.once('ready', async () => {
 
         await rest.put(
             Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
-            { body: [command.toJSON()] },
+            { body: [command.toJSON(), itemReleaseCommand.toJSON()] },
         );
         console.log('Successfully reloaded application (/) commands.');
     } catch (error) {
@@ -143,6 +175,34 @@ client.on('interactionCreate', async interaction => {
             .setDescription(`**Change:** ${changeType === 'raise' ? '<:arrow:1380661740962054276>' : '<:arrow:1380661729700216994>'} ${changeType.charAt(0).toUpperCase() + changeType.slice(1)}\n\n**Old Value:** ${formattedCurrent} (${formattedCurrentShort})\n**New Value:** ${formattedNew} (${formattedNewShort})\n**Raise/Lower:** ${difference >= 0 ? '+' : ''}${formattedDifference} (${difference >= 0 ? '+' : ''}${formattedDifferenceShort})\n\n**Reason:** ${reason}`)
             .setThumbnail(imageUrl)
             .setURL(referenceLink);
+
+        await interaction.reply({ embeds: [embed] });
+    } else if (interaction.commandName === 'itemrelease') {
+        const itemName = interaction.options.getString('itemname');
+        const rarity = interaction.options.getString('rarity');
+        const value = interaction.options.getNumber('value');
+        const stock = interaction.options.getNumber('stock');
+        const imageUrl = interaction.options.getString('image');
+
+        // Format the value
+        const formattedValue = value.toLocaleString();
+        const formattedValueShort = formatNumber(value);
+
+        // Set color based on rarity
+        const rarityColors = {
+            'common': '#00ff00',      // Green
+            'uncommon': '#00ffff',    // Light Blue
+            'rare': '#0000ff',        // Dark Blue
+            'epic': '#800080',        // Dark Purple
+            'legendary': '#ffd700',   // Gold
+            'limited': '#ff69b4'      // Pink
+        };
+
+        const embed = new EmbedBuilder()
+            .setTitle(itemName)
+            .setColor(rarityColors[rarity])
+            .setDescription(`**Rarity:** ${rarity.charAt(0).toUpperCase() + rarity.slice(1)}\n\n**Value:** ${formattedValue} (${formattedValueShort})\n**Stock:** ${stock}`)
+            .setThumbnail(imageUrl);
 
         await interaction.reply({ embeds: [embed] });
     }
