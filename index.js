@@ -62,6 +62,10 @@ const command = new SlashCommandBuilder()
     .addStringOption(option =>
         option.setName('reference_link')
             .setDescription('Discord message reference link')
+            .setRequired(true))
+    .addStringOption(option =>
+        option.setName('reason')
+            .setDescription('Reason for the value change')
             .setRequired(true));
 
 // Register the command
@@ -120,6 +124,7 @@ client.on('interactionCreate', async interaction => {
         const newValue = interaction.options.getNumber('new_value');
         const imageUrl = interaction.options.getString('image_url');
         const referenceLink = interaction.options.getString('reference_link');
+        const reason = interaction.options.getString('reason');
 
         // Calculate the difference
         const difference = newValue - currentValue;
@@ -135,9 +140,8 @@ client.on('interactionCreate', async interaction => {
         const embed = new EmbedBuilder()
             .setTitle(itemName)
             .setColor(changeType === 'raise' ? '#00ff00' : '#ff0000')
-            .setDescription(`**Change:** <:arrow:1380661740962054276> ${changeType.charAt(0).toUpperCase() + changeType.slice(1)}\n\n**Old Value:** ${formattedCurrent} (${formattedCurrentShort})\n**New Value:** ${formattedNew} (${formattedNewShort})\n**Raise/Lower:** ${difference >= 0 ? '+' : ''}${formattedDifference} (${difference >= 0 ? '+' : ''}${formattedDifferenceShort})`)
+            .setDescription(`**Change:** ${changeType === 'raise' ? '<:arrow:1380661740962054276>' : '<:arrow:1380661729700216994>'} ${changeType.charAt(0).toUpperCase() + changeType.slice(1)}\n\n**Old Value:** ${formattedCurrent} (${formattedCurrentShort})\n**New Value:** ${formattedNew} (${formattedNewShort})\n**Raise/Lower:** ${difference >= 0 ? '+' : ''}${formattedDifference} (${difference >= 0 ? '+' : ''}${formattedDifferenceShort})\n\n**Reason:** ${reason}`)
             .setThumbnail(imageUrl)
-            .setFooter({ text: `Reference Message` })
             .setURL(referenceLink);
 
         await interaction.reply({ embeds: [embed] });
