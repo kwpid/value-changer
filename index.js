@@ -101,6 +101,18 @@ client.once('ready', async () => {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
 
+    // Check if user has admin permissions or the specific role
+    const member = interaction.member;
+    const hasAdminPermission = member.permissions.has(PermissionsBitField.Flags.Administrator);
+    const hasRequiredRole = member.roles.cache.has('1380720990920642620');
+
+    if (!hasAdminPermission && !hasRequiredRole) {
+        return interaction.reply({ 
+            content: 'You do not have permission to use this command. Only administrators and users with the required role can use this command.',
+            ephemeral: true 
+        });
+    }
+
     if (interaction.commandName === 'valuechange') {
         const itemName = interaction.options.getString('itemname');
         const changeType = interaction.options.getString('change_type');
