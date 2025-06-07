@@ -193,6 +193,9 @@ client.on('interactionCreate', async interaction => {
         const formattedValue = value.toLocaleString();
         const formattedValueShort = formatNumber(value);
 
+        // Format stock display
+        const stockDisplay = stock >= 999 ? 'Inf' : stock.toString();
+
         // Set color based on rarity
         const rarityColors = {
             'common': '#00ff00',      // Green
@@ -204,9 +207,9 @@ client.on('interactionCreate', async interaction => {
         };
 
         const embed = new EmbedBuilder()
-            .setTitle(itemName)
+            .setTitle(`${itemName} | ${caseName}`)
             .setColor(rarityColors[rarity])
-            .setDescription(`**Rarity:** ${rarity.charAt(0).toUpperCase() + rarity.slice(1)}\n\n**Value:** ${formattedValue} (${formattedValueShort})\n**Stock:** ${stock}\n**Case:** ${caseName}`)
+            .setDescription(`**Rarity:** ${rarity.charAt(0).toUpperCase() + rarity.slice(1)}\n\n**Value:** ${formattedValue} (${formattedValueShort})\n**Stock:** ${stockDisplay}`)
             .setThumbnail(imageUrl);
 
         await interaction.reply({ embeds: [embed] });
