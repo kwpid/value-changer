@@ -98,6 +98,10 @@ const itemReleaseCommand = new SlashCommandBuilder()
     .addStringOption(option =>
         option.setName('image')
             .setDescription('URL of the item image')
+            .setRequired(true))
+    .addStringOption(option =>
+        option.setName('case')
+            .setDescription('Which case the item will be in')
             .setRequired(true));
 
 // Register the command
@@ -183,6 +187,7 @@ client.on('interactionCreate', async interaction => {
         const value = interaction.options.getNumber('value');
         const stock = interaction.options.getNumber('stock');
         const imageUrl = interaction.options.getString('image');
+        const caseName = interaction.options.getString('case');
 
         // Format the value
         const formattedValue = value.toLocaleString();
@@ -201,7 +206,7 @@ client.on('interactionCreate', async interaction => {
         const embed = new EmbedBuilder()
             .setTitle(itemName)
             .setColor(rarityColors[rarity])
-            .setDescription(`**Rarity:** ${rarity.charAt(0).toUpperCase() + rarity.slice(1)}\n\n**Value:** ${formattedValue} (${formattedValueShort})\n**Stock:** ${stock}`)
+            .setDescription(`**Rarity:** ${rarity.charAt(0).toUpperCase() + rarity.slice(1)}\n\n**Value:** ${formattedValue} (${formattedValueShort})\n**Stock:** ${stock}\n**Case:** ${caseName}`)
             .setThumbnail(imageUrl);
 
         await interaction.reply({ embeds: [embed] });
