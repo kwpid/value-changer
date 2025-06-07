@@ -176,12 +176,12 @@ client.on('interactionCreate', async interaction => {
         const embed = new EmbedBuilder()
             .setTitle(itemName)
             .setColor(changeType === 'raise' ? '#00ff00' : '#ff0000')
-            .setDescription(`<@&1380660978605097170>\n\n**Change:** ${changeType === 'raise' ? '<:arrow:1380661740962054276>' : '<:arrow:1380661729700216994>'} ${changeType.charAt(0).toUpperCase() + changeType.slice(1)}\n\n**Old Value:** ${formattedCurrent} (${formattedCurrentShort})\n**New Value:** ${formattedNew} (${formattedNewShort})\n**Raise/Lower:** ${difference >= 0 ? '+' : ''}${formattedDifference} (${difference >= 0 ? '+' : ''}${formattedDifferenceShort})\n\n**Reason:** ${reason}`)
+            .setDescription(`**Change:** ${changeType === 'raise' ? '<:arrow:1380661740962054276>' : '<:arrow:1380661729700216994>'} ${changeType.charAt(0).toUpperCase() + changeType.slice(1)}\n\n**Old Value:** ${formattedCurrent} (${formattedCurrentShort})\n**New Value:** ${formattedNew} (${formattedNewShort})\n**Raise/Lower:** ${difference >= 0 ? '+' : ''}${formattedDifference} (${difference >= 0 ? '+' : ''}${formattedDifferenceShort})\n\n**Reason:** ${reason}`)
             .setThumbnail(imageUrl)
             .setURL(referenceLink);
 
-        const reply = await interaction.reply({ embeds: [embed] });
-        const message = await reply.fetch();
+        await interaction.reply({ content: '<@&1380660978605097170>', embeds: [embed] });
+        const message = await interaction.fetchReply();
         await message.react('👍');
         await message.react('👎');
     } else if (interaction.commandName === 'itemrelease') {
@@ -212,11 +212,11 @@ client.on('interactionCreate', async interaction => {
         const embed = new EmbedBuilder()
             .setTitle(`${itemName} | ${caseName}`)
             .setColor(rarityColors[rarity])
-            .setDescription(`<@&1381033979502661722>\n\n**Rarity:** ${rarity.charAt(0).toUpperCase() + rarity.slice(1)}\n\n**Value:** ${formattedValue} (${formattedValueShort})\n**Stock:** ${stockDisplay}`)
+            .setDescription(`**Rarity:** ${rarity.charAt(0).toUpperCase() + rarity.slice(1)}\n\n**Value:** ${formattedValue} (${formattedValueShort})\n**Stock:** ${stockDisplay}`)
             .setThumbnail(imageUrl);
 
-        const reply = await interaction.reply({ embeds: [embed] });
-        const message = await reply.fetch();
+        await interaction.reply({ content: '<@&1381033979502661722>', embeds: [embed] });
+        const message = await interaction.fetchReply();
         await message.react('👍');
         await message.react('👎');
     }
